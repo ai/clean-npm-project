@@ -21,7 +21,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Clean npm package
-        uses: ai/clean-npm-project@1680ee151d1b693e807c8e9bd95d26c2d57018ac #v1.0.0
+        uses: ai/clean-npm-project@0360e11d62a76db910e3035fad44c6c07d5348c4 #v0.1.0
         with:
           clean-docs: true
       - name: Publish npm package
