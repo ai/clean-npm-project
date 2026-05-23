@@ -26,6 +26,7 @@ function envFor(inputs) {
 
 async function run(cwd, inputs = {}) {
   await exec(process.execPath, [ACTION], { cwd, env: envFor(inputs) })
+  return join(cwd, 'cleaned-project')
 }
 
 let dir
@@ -52,11 +53,11 @@ describe('action.js', () => {
     await mkdir(join(dir, 'src'))
     await writeFile(join(dir, 'src', 'index.js'), 'export default 1\n')
 
-    await run(dir)
+    const out = await run(dir)
 
-    const entries = (await readdir(join(dir, 'cleaned-project'))).sort()
+    const entries = (await readdir(out)).sort()
     assert.deepEqual(entries, ['package.json', 'src'])
-    const srcEntries = await readdir(join(dir, 'cleaned-project', 'src'))
+    const srcEntries = await readdir(join(out, 'src'))
     assert.deepEqual(srcEntries, ['index.js'])
   })
 
@@ -78,10 +79,10 @@ describe('action.js', () => {
       })
     )
 
-    await run(dir)
+    const out = await run(dir)
 
     const pkg = JSON.parse(
-      await readFile(join(dir, 'cleaned-project', 'package.json'), 'utf8')
+      await readFile(join(out, 'package.json'), 'utf8')
     )
     assert.deepEqual(pkg, {
       name: 'pkg',
@@ -104,10 +105,10 @@ describe('action.js', () => {
       })
     )
 
-    await run(dir, { fields: 'keywords, private' })
+    const out = await run(dir, { fields: 'keywords, private' })
 
     const pkg = JSON.parse(
-      await readFile(join(dir, 'cleaned-project', 'package.json'), 'utf8')
+      await readFile(join(out, 'package.json'), 'utf8')
     )
     assert.deepEqual(pkg, {
       name: 'pkg',
@@ -126,10 +127,10 @@ describe('action.js', () => {
       })
     )
 
-    await run(dir)
+    const out = await run(dir)
 
     const pkg = JSON.parse(
-      await readFile(join(dir, 'cleaned-project', 'package.json'), 'utf8')
+      await readFile(join(out, 'package.json'), 'utf8')
     )
     assert.deepEqual(pkg, {
       name: 'pkg',
@@ -146,9 +147,9 @@ describe('action.js', () => {
       '# Title\n\nIntro line.\n\n## Options\n\nDetails.\n'
     )
 
-    await run(dir, { 'clean-docs': true })
+    const out = await run(dir, { 'clean-docs': true })
 
-    const md = await readFile(join(dir, 'cleaned-project', 'README.md'), 'utf8')
+    const md = await readFile(join(out, 'README.md'), 'utf8')
     assert.equal(md, '# Title\n\nIntro line.\n')
   })
 
@@ -166,12 +167,9 @@ describe('action.js', () => {
       ].join('\n')
     )
 
-    await run(dir, { 'clean-comments': true })
+    const out = await run(dir, { 'clean-comments': true })
 
-    const code = await readFile(
-      join(dir, 'cleaned-project', 'index.js'),
-      'utf8'
-    )
+    const code = await readFile(join(out, 'index.js'), 'utf8')
     assert.equal(
       code,
       [
