@@ -1,0 +1,20 @@
+name: Clean Project
+description: Make npm packages smaller by cleaning package.json and popular development configs.
+author: Andrey Sitnik
+
+inputs:
+  clean-docs:
+    description: Keep only main section of README.md.
+    required: false
+    default: 'false'
+  clean-comments:
+    description: Remove all inline comments from JS files.
+    required: false
+    default: 'false'
+  fields:
+    description: Keys to remove from package.json in addition to default list.
+    required: false
+
+runs:
+  using: node24
+  main: action.js
