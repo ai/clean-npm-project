@@ -1,4 +1,4 @@
-name: Clean Project
+name: Clean npm Project
 description: Make npm packages smaller by cleaning package.json and popular development configs.
 author: Andrey Sitnik
 

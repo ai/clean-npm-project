@@ -1,4 +1,4 @@
-# Clean Project
+# Clean npm Project
 
 This action make npm packages smaller by cleaning `package.json` and popular development configs.
 
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ai/clean-project@v1
+      - uses: ai/clean-npm-project@v1
         with:
           clean-docs: true
       - run: npm stage publish
