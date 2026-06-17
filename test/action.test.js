@@ -13,12 +13,12 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { promisify } from 'node:util'
 
-const exec = promisify(execFile)
 const ACTION = join(import.meta.dirname, '..', 'action.js')
+let exec = promisify(execFile)
 
 function envFor(inputs) {
-  const env = { ...process.env }
-  for (const [name, value] of Object.entries(inputs)) {
+  let env = { ...process.env }
+  for (let [name, value] of Object.entries(inputs)) {
     env[`INPUT_${name.replace(/-/g, '_').toUpperCase()}`] = String(value)
   }
   return env
@@ -53,11 +53,11 @@ describe('action.js', () => {
     await mkdir(join(dir, 'src'))
     await writeFile(join(dir, 'src', 'index.js'), 'export default 1\n')
 
-    const out = await run(dir)
+    let out = await run(dir)
 
-    const entries = (await readdir(out)).sort()
+    let entries = (await readdir(out)).sort()
     assert.deepEqual(entries, ['package.json', 'src'])
-    const srcEntries = await readdir(join(out, 'src'))
+    let srcEntries = await readdir(join(out, 'src'))
     assert.deepEqual(srcEntries, ['index.js'])
   })
 
@@ -79,11 +79,9 @@ describe('action.js', () => {
       })
     )
 
-    const out = await run(dir)
+    let out = await run(dir)
 
-    const pkg = JSON.parse(
-      await readFile(join(out, 'package.json'), 'utf8')
-    )
+    let pkg = JSON.parse(await readFile(join(out, 'package.json'), 'utf8'))
     assert.deepEqual(pkg, {
       name: 'pkg',
       version: '1.0.0',
@@ -105,11 +103,9 @@ describe('action.js', () => {
       })
     )
 
-    const out = await run(dir, { fields: 'keywords, private' })
+    let out = await run(dir, { fields: 'keywords, private' })
 
-    const pkg = JSON.parse(
-      await readFile(join(out, 'package.json'), 'utf8')
-    )
+    let pkg = JSON.parse(await readFile(join(out, 'package.json'), 'utf8'))
     assert.deepEqual(pkg, {
       name: 'pkg',
       version: '1.0.0'
@@ -127,11 +123,9 @@ describe('action.js', () => {
       })
     )
 
-    const out = await run(dir)
+    let out = await run(dir)
 
-    const pkg = JSON.parse(
-      await readFile(join(out, 'package.json'), 'utf8')
-    )
+    let pkg = JSON.parse(await readFile(join(out, 'package.json'), 'utf8'))
     assert.deepEqual(pkg, {
       name: 'pkg',
       version: '1.0.0',
@@ -147,9 +141,9 @@ describe('action.js', () => {
       '# Title\n\nIntro line.\n\n## Options\n\nDetails.\n'
     )
 
-    const out = await run(dir, { 'clean-docs': true })
+    let out = await run(dir, { 'clean-docs': true })
 
-    const md = await readFile(join(out, 'README.md'), 'utf8')
+    let md = await readFile(join(out, 'README.md'), 'utf8')
     assert.equal(md, '# Title\n\nIntro line.\n')
   })
 
@@ -167,9 +161,9 @@ describe('action.js', () => {
       ].join('\n')
     )
 
-    const out = await run(dir, { 'clean-comments': true })
+    let out = await run(dir, { 'clean-comments': true })
 
-    const code = await readFile(join(out, 'index.js'), 'utf8')
+    let code = await readFile(join(out, 'index.js'), 'utf8')
     assert.equal(
       code,
       [

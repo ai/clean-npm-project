@@ -24,7 +24,7 @@ function isIgnored(name) {
 
 async function copyClean(src, dest) {
   await mkdir(dest, { recursive: true })
-  for (const name of await readdir(src)) {
+  for (let name of await readdir(src)) {
     if (name === TARGET || isIgnored(name)) continue
     await cp(join(src, name), join(dest, name), {
       filter: source => !isIgnored(basename(source)),
@@ -34,15 +34,15 @@ async function copyClean(src, dest) {
 }
 
 function cleanPackageJson(pkg, extraFields) {
-  const out = {}
-  for (const [key, value] of Object.entries(pkg)) {
+  let out = {}
+  for (let [key, value] of Object.entries(pkg)) {
     if (IGNORE_FIELDS.includes(key)) continue
     if (extraFields.includes(key)) continue
     out[key] = value
   }
   if (out.scripts) {
-    const scripts = {}
-    for (const [name, value] of Object.entries(out.scripts)) {
+    let scripts = {}
+    for (let [name, value] of Object.entries(out.scripts)) {
       if (!IGNORE_SCRIPTS.includes(name)) scripts[name] = value
     }
     if (Object.keys(scripts).length === 0) {
@@ -59,10 +59,10 @@ function cleanPackageJson(pkg, extraFields) {
 }
 
 function trimReadme(md) {
-  const lines = md.split('\n')
-  const out = []
+  let lines = md.split('\n')
+  let out = []
   let started = false
-  for (const line of lines) {
+  for (let line of lines) {
     if (/^#\s/.test(line)) {
       started = true
       out.push(line)
@@ -79,20 +79,20 @@ function stripComments(code) {
   let out = ''
   let i = 0
   while (i < code.length) {
-    const c = code[i]
-    const next = code[i + 1]
+    let c = code[i]
+    let next = code[i + 1]
     if (c === '/' && next === '/') {
-      const end = code.indexOf('\n', i)
+      let end = code.indexOf('\n', i)
       i = end === -1 ? code.length : end
     } else if (c === '/' && next === '*') {
-      const end = code.indexOf('*/', i + 2)
+      let end = code.indexOf('*/', i + 2)
       i = end === -1 ? code.length : end + 2
     } else if (c === '"' || c === "'" || c === '`') {
-      const quote = c
+      let quote = c
       out += c
       i++
       while (i < code.length) {
-        const ch = code[i]
+        let ch = code[i]
         out += ch
         if (ch === '\\') {
           out += code[i + 1] ?? ''
@@ -111,9 +111,9 @@ function stripComments(code) {
 }
 
 async function walkJs(dir) {
-  const files = []
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name)
+  let files = []
+  for (let entry of await readdir(dir, { withFileTypes: true })) {
+    let full = join(dir, entry.name)
     if (entry.isDirectory()) {
       files.push(...(await walkJs(full)))
     } else if (/\.[cm]?js$/.test(entry.name)) {
@@ -123,34 +123,34 @@ async function walkJs(dir) {
   return files
 }
 
-const cleanDocs = isTrue(input('clean-docs'))
-const cleanComments = isTrue(input('clean-comments'))
-const extraFields = input('fields')
+let cleanDocs = isTrue(input('clean-docs'))
+let cleanComments = isTrue(input('clean-comments'))
+let extraFields = input('fields')
   .split(/[\s,]+/)
   .filter(Boolean)
 
-const src = process.cwd()
-const dest = join(src, TARGET)
+let src = process.cwd()
+let dest = join(src, TARGET)
 
 await rm(dest, { force: true, recursive: true })
 await copyClean(src, dest)
 
-const pkgPath = join(dest, 'package.json')
-const pkg = JSON.parse(await readFile(pkgPath, 'utf8'))
+let pkgPath = join(dest, 'package.json')
+let pkg = JSON.parse(await readFile(pkgPath, 'utf8'))
 await writeFile(
   pkgPath,
   JSON.stringify(cleanPackageJson(pkg, extraFields), null, 2) + '\n'
 )
 
 if (cleanDocs) {
-  const readmePath = join(dest, 'README.md')
-  const md = await readFile(readmePath, 'utf8').catch(() => null)
+  let readmePath = join(dest, 'README.md')
+  let md = await readFile(readmePath, 'utf8').catch(() => null)
   if (md !== null) await writeFile(readmePath, trimReadme(md))
 }
 
 if (cleanComments) {
-  for (const file of await walkJs(dest)) {
-    const code = await readFile(file, 'utf8')
+  for (let file of await walkJs(dest)) {
+    let code = await readFile(file, 'utf8')
     await writeFile(file, stripComments(code))
   }
 }
