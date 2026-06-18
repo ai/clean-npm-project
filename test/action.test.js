@@ -19,7 +19,7 @@ let exec = promisify(execFile)
 function envFor(inputs) {
   let env = { ...process.env }
   for (let [name, value] of Object.entries(inputs)) {
-    env[`INPUT_${name.replace(/-/g, '_').toUpperCase()}`] = String(value)
+    env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] = String(value)
   }
   return env
 }

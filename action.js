@@ -8,7 +8,9 @@ import KEEP_SCRIPTS from './keep-scripts.js'
 const TARGET = 'cleaned-project'
 
 function input(name) {
-  return process.env[`INPUT_${name.replace(/-/g, '_').toUpperCase()}`] ?? ''
+  // GitHub builds INPUT_* vars by uppercasing and replacing spaces
+  // with underscores, so `clean-docs` becomes `INPUT_CLEAN-DOCS`.
+  return process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] ?? ''
 }
 
 function isTrue(value) {
@@ -172,16 +174,22 @@ if (cleanDocs) {
   let readmePath = join(dest, 'README.md')
   let md = await readFile(readmePath, 'utf8').catch(() => null)
   if (md !== null) {
-    await writeFile(readmePath, trimReadme(md))
-    console.log(`Cleaned ${relative(dest, readmePath)}`)
+    let trimmed = trimReadme(md)
+    if (trimmed !== md) {
+      await writeFile(readmePath, trimmed)
+      console.log('Cleaned README.md to the intro section')
+    }
   }
 }
 
 if (cleanComments) {
   for (let file of await walkJs(dest)) {
     let code = await readFile(file, 'utf8')
-    await writeFile(file, stripComments(code))
-    console.log(`Cleaned ${relative(dest, file)}`)
+    let stripped = stripComments(code)
+    if (stripped !== code) {
+      await writeFile(file, stripped)
+      console.log(`Cleaned comments from ${relative(dest, file)}`)
+    }
   }
 }
 
