@@ -167,9 +167,7 @@ describe('action.js', () => {
     assert.equal(
       code,
       [
-        '',
-        'const url = "https://example.com" ',
-        '',
+        'const url = "https://example.com"',
         'const path = `/api/v1/users`',
         'export { path, url }',
         ''

@@ -81,6 +81,8 @@ function trimReadme(md) {
 }
 
 // Strips // and /* */ comments while preserving string and template literals.
+// A comment that fills a whole line drops the line; a trailing comment drops
+// the whitespace before it, so no blank or dangling lines are left behind.
 function stripComments(code) {
   let out = ''
   let i = 0
@@ -88,11 +90,28 @@ function stripComments(code) {
     let c = code[i]
     let next = code[i + 1]
     if (c === '/' && next === '/') {
-      let end = code.indexOf('\n', i)
-      i = end === -1 ? code.length : end
+      let nl = code.indexOf('\n', i)
+      let lineStart = out.lastIndexOf('\n') + 1
+      if (out.slice(lineStart).trim() === '') {
+        out = out.slice(0, lineStart)
+        i = nl === -1 ? code.length : nl + 1
+      } else {
+        out = out.replace(/[ \t]+$/, '')
+        i = nl === -1 ? code.length : nl
+      }
     } else if (c === '/' && next === '*') {
       let end = code.indexOf('*/', i + 2)
-      i = end === -1 ? code.length : end + 2
+      let after = end === -1 ? code.length : end + 2
+      let nl = code.indexOf('\n', after)
+      let lineStart = out.lastIndexOf('\n') + 1
+      let trailing = code.slice(after, nl === -1 ? code.length : nl)
+      if (out.slice(lineStart).trim() === '' && trailing.trim() === '') {
+        out = out.slice(0, lineStart)
+        i = nl === -1 ? code.length : nl + 1
+      } else {
+        out = out.replace(/[ \t]+$/, '')
+        i = after
+      }
     } else if (c === '"' || c === "'" || c === '`') {
       let quote = c
       out += c
