@@ -2,6 +2,10 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.2
+
+- Fixed comment cleaning.
+
 ## 0.2.1
 
 - Fixed dev `scripts` removing from `package.json`.
