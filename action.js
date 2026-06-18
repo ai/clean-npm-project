@@ -3,7 +3,7 @@ import { basename, join, relative } from 'node:path'
 
 import IGNORE_FIELDS from './ignore-fields.js'
 import IGNORE_FILES from './ignore-files.js'
-import IGNORE_SCRIPTS from './ignore-scripts.js'
+import KEEP_SCRIPTS from './keep-scripts.js'
 
 const TARGET = 'cleaned-project'
 
@@ -45,7 +45,7 @@ function cleanPackageJson(pkg, extraFields) {
   if (out.scripts) {
     let scripts = {}
     for (let [name, value] of Object.entries(out.scripts)) {
-      if (IGNORE_SCRIPTS.includes(name)) {
+      if (!KEEP_SCRIPTS.includes(name)) {
         console.log(`Removed package.json key scripts.${name}`)
       } else {
         scripts[name] = value
