@@ -2,9 +2,13 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.1
+
+-
+
 ## 0.2.0
 
-- Add printing cleaned files and keys.
+- Added printing cleaned files and keys.
 - Fixed docs.
 
 ## 0.1.0
