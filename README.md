@@ -19,11 +19,13 @@ jobs:
       id-token: write
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Clean npm package
         uses: ai/clean-npm-project@0360e11d62a76db910e3035fad44c6c07d5348c4 #v0.1.0
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          clean-docs: true
+          node-version: 26
       - name: Publish npm package
         run: npm stage publish
         working-directory: cleaned-project/
