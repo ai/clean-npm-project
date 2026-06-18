@@ -86,8 +86,8 @@ describe('action.js', () => {
       name: 'pkg',
       version: '1.0.0',
       scripts: {
-        build: 'rollup',
-        test: 'jest'
+        prepare: 'husky install',
+        prepublish: 'npm run build'
       }
     })
   })
