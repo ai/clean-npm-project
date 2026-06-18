@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.3
+
+- Fixed action’s input reading.
+- Added more output.
+
 ## 0.2.2
 
 - Fixed comment cleaning.
