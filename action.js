@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
-import { basename, join } from 'node:path'
+import { basename, join, relative } from 'node:path'
 
 import IGNORE_FIELDS from './ignore-fields.js'
 import IGNORE_FILES from './ignore-files.js'
@@ -36,14 +36,20 @@ async function copyClean(src, dest) {
 function cleanPackageJson(pkg, extraFields) {
   let out = {}
   for (let [key, value] of Object.entries(pkg)) {
-    if (IGNORE_FIELDS.includes(key)) continue
-    if (extraFields.includes(key)) continue
+    if (IGNORE_FIELDS.includes(key) || extraFields.includes(key)) {
+      console.log(`Removed package.json key ${key}`)
+      continue
+    }
     out[key] = value
   }
   if (out.scripts) {
     let scripts = {}
     for (let [name, value] of Object.entries(out.scripts)) {
-      if (!IGNORE_SCRIPTS.includes(name)) scripts[name] = value
+      if (IGNORE_SCRIPTS.includes(name)) {
+        console.log(`Removed package.json key scripts.${name}`)
+      } else {
+        scripts[name] = value
+      }
     }
     if (Object.keys(scripts).length === 0) {
       delete out.scripts
@@ -141,17 +147,22 @@ await writeFile(
   pkgPath,
   JSON.stringify(cleanPackageJson(pkg, extraFields), null, 2) + '\n'
 )
+console.log(`Cleaned ${relative(dest, pkgPath)}`)
 
 if (cleanDocs) {
   let readmePath = join(dest, 'README.md')
   let md = await readFile(readmePath, 'utf8').catch(() => null)
-  if (md !== null) await writeFile(readmePath, trimReadme(md))
+  if (md !== null) {
+    await writeFile(readmePath, trimReadme(md))
+    console.log(`Cleaned ${relative(dest, readmePath)}`)
+  }
 }
 
 if (cleanComments) {
   for (let file of await walkJs(dest)) {
     let code = await readFile(file, 'utf8')
     await writeFile(file, stripComments(code))
+    console.log(`Cleaned ${relative(dest, file)}`)
   }
 }
 
