@@ -82,9 +82,38 @@ function trimReadme(md) {
   return out.join('\n').trimEnd() + '\n'
 }
 
-// Strips // and /* */ comments while preserving string and template literals.
-// A comment that fills a whole line drops the line; a trailing comment drops
-// the whitespace before it, so no blank or dangling lines are left behind.
+// A `/` starts a RegExp literal only when an expression is expected. We
+// approximate that by looking at the last meaningful character already emitted:
+// after a value (identifier, number, `)`, `]`) a `/` is division, otherwise it
+// opens a regex. Keywords like `return` are values syntactically but expect an
+// expression next, so they are listed explicitly.
+const REGEX_KEYWORDS = new Set([
+  'await',
+  'case',
+  'delete',
+  'do',
+  'else',
+  'in',
+  'instanceof',
+  'new',
+  'of',
+  'return',
+  'typeof',
+  'void',
+  'yield'
+])
+
+function regexAllowed(out) {
+  let trimmed = out.replace(/\s+$/, '')
+  if (trimmed === '') return true
+  let word = trimmed.match(/[$\w]+$/)
+  if (word) return REGEX_KEYWORDS.has(word[0])
+  return !/[)\]]$/.test(trimmed)
+}
+
+// Strips // and /* */ comments while preserving string, template, and RegExp
+// literals. A comment that fills a whole line drops the line; a trailing comment
+// drops the whitespace before it, so no blank or dangling lines are left behind.
 function stripComments(code) {
   let out = ''
   let i = 0
@@ -113,6 +142,24 @@ function stripComments(code) {
       } else {
         out = out.replace(/[ \t]+$/, '')
         i = after
+      }
+    } else if (c === '/' && regexAllowed(out)) {
+      out += c
+      i++
+      let inClass = false
+      while (i < code.length) {
+        let ch = code[i]
+        out += ch
+        if (ch === '\\') {
+          out += code[i + 1] ?? ''
+          i += 2
+          continue
+        }
+        i++
+        if (ch === '\n') break
+        if (ch === '[') inClass = true
+        else if (ch === ']') inClass = false
+        else if (ch === '/' && !inClass) break
       }
     } else if (c === '"' || c === "'" || c === '`') {
       let quote = c

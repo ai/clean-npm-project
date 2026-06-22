@@ -174,4 +174,32 @@ describe('action.js', () => {
       ].join('\n')
     )
   })
+
+  test('clean-comments keeps RegExp literals intact', async () => {
+    await writeFile(join(dir, 'package.json'), '{}')
+    await writeFile(
+      join(dir, 'index.js'),
+      [
+        "const scope = name.replace(/^@[^/]+\\//, '') // strip scope",
+        'const div = a / 2 / 1 // division, not a regex',
+        'const cls = /[/?]+/g',
+        'export { scope, div, cls }',
+        ''
+      ].join('\n')
+    )
+
+    let out = await run(dir, { 'clean-comments': true })
+
+    let code = await readFile(join(out, 'index.js'), 'utf8')
+    assert.equal(
+      code,
+      [
+        "const scope = name.replace(/^@[^/]+\\//, '')",
+        'const div = a / 2 / 1',
+        'const cls = /[/?]+/g',
+        'export { scope, div, cls }',
+        ''
+      ].join('\n')
+    )
+  })
 })
