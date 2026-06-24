@@ -46,5 +46,7 @@ export default [
   /^\.yaspellerrc/,
   /^changelog(\.md|\.txt)?$/i,
   /eslint.config.(c|m)?js/,
-  /README\.[\w-]+\.md/
+  /README\.[\w-]+\.md/,
+  '.devcontainer.json',
+  '.devcontainer/*'
 ]
