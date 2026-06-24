@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.3.0
 
-- Add Dev Container configs to be excluded from npm package.
+- Added Dev Container configs to be excluded from npm package.
 
 ## 0.2.3
 
