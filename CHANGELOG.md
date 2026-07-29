@@ -2,6 +2,10 @@
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.1
+
+- Added a link to full docs when `clean-docs` trims `README.md`.
+
 ## 0.3.0
 
 - Added Dev Container configs to be excluded from npm package.
