@@ -82,6 +82,16 @@ function trimReadme(md) {
   return out.join('\n').trimEnd() + '\n'
 }
 
+// Builds the browsable README URL from a package.json `repository` field, which
+// may be a shorthand string (`owner/repo`, `github:owner/repo`), a full git URL,
+// or an object with a `url`. Returns null when no owner/repo can be extracted.
+function readmeUrl(repository) {
+  let repoUrl = typeof repository === 'object' ? repository?.url : repository
+  if (!repoUrl) return null
+  let name = repoUrl.match(/[^/:]+\/[^/:]+$/)?.[0]?.replace(/\.git$/, '')
+  return name ? `https://github.com/${name}#readme` : null
+}
+
 // A `/` starts a RegExp literal only when an expression is expected. We
 // approximate that by looking at the last meaningful character already emitted:
 // after a value (identifier, number, `)`, `]`) a `/` is division, otherwise it
@@ -222,6 +232,10 @@ if (cleanDocs) {
   let md = await readFile(readmePath, 'utf8').catch(() => null)
   if (md !== null) {
     let trimmed = trimReadme(md)
+    let docsUrl = pkg.homepage || readmeUrl(pkg.repository)
+    if (docsUrl) {
+      trimmed += `\n## Docs\nRead full docs **[here](${docsUrl})**.\n`
+    }
     if (trimmed !== md) {
       await writeFile(readmePath, trimmed)
       console.log('Cleaned README.md to the intro section')

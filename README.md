@@ -43,7 +43,7 @@ This action will clean:
 
 ### `clean-docs`
 
-Keeps only main section of `README.md`.
+Keeps only main section of `README.md` and adds a link to the full docs.
 
 Default `false`.
 

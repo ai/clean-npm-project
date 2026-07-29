@@ -147,6 +147,55 @@ describe('action.js', () => {
     assert.equal(md, '# Title\n\nIntro line.\n')
   })
 
+  test('clean-docs adds a link to full docs from repository', async () => {
+    await writeFile(
+      join(dir, 'package.json'),
+      JSON.stringify({
+        name: 'pkg',
+        version: '1.0.0',
+        repository: 'user/repo'
+      })
+    )
+    await writeFile(
+      join(dir, 'README.md'),
+      '# Title\n\nIntro line.\n\n## Options\n\nDetails.\n'
+    )
+
+    let out = await run(dir, { 'clean-docs': true })
+
+    let md = await readFile(join(out, 'README.md'), 'utf8')
+    assert.equal(
+      md,
+      '# Title\n\nIntro line.\n\n## Docs\n' +
+        'Read full docs **[here](https://github.com/user/repo#readme)**.\n'
+    )
+  })
+
+  test('clean-docs prefers homepage and parses git URLs', async () => {
+    await writeFile(
+      join(dir, 'package.json'),
+      JSON.stringify({
+        name: 'pkg',
+        version: '1.0.0',
+        homepage: 'https://example.com/docs',
+        repository: { type: 'git', url: 'git+https://github.com/user/repo.git' }
+      })
+    )
+    await writeFile(
+      join(dir, 'README.md'),
+      '# Title\n\nIntro line.\n\n## Options\n\nDetails.\n'
+    )
+
+    let out = await run(dir, { 'clean-docs': true })
+
+    let md = await readFile(join(out, 'README.md'), 'utf8')
+    assert.equal(
+      md,
+      '# Title\n\nIntro line.\n\n## Docs\n' +
+        'Read full docs **[here](https://example.com/docs)**.\n'
+    )
+  })
+
   test('clean-comments strips JS comments', async () => {
     await writeFile(join(dir, 'package.json'), '{}')
     await writeFile(
